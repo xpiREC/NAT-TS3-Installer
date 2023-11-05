@@ -13,15 +13,11 @@ if [ -e '/etc/redhat-release' ] ; then
   exit 1
 fi
 
-# Get the internal IP of the server
-pvtip=$( ifconfig  | grep 'inet addr:'| grep -v '127.0.0*' | cut -d ':' -f2 | awk '{ print $1}' )
-
 # Get the external public IP of the server
 pubip=$( wget -qO- http://ipinfo.io/ip )
 
 # Gives user the internal ip for reference and ask for desired ports
-echo "Your private internal IP is: $pvtip"
-read -p "Enter Voice Server port [9987]: " vport
+read -p "Enter Voice Server port: " vport
 while true; do
   if ! [[ "$vport" =~ ^[0-9]+$ ]] || [[ "$vport" -lt "1" ]] || [[ "$vport" -gt "65535" ]]; then
     echo "Voice Server port invalid."
@@ -32,7 +28,7 @@ while true; do
   fi
 done
 
-read -p "Enter File Transfer port [30033]: " fport
+read -p "Enter File Transfer port: " fport
 while true; do
   if ! [[ "$fport" =~ ^[0-9]+$ ]] || [[ "$fport" -lt "1" ]] || [[ "$fport" -gt "65535" ]]; then
     echo "File Transfer port invalid."
@@ -43,7 +39,7 @@ while true; do
   fi
 done
 
-read -p "Enter Server Query port [10011]: " qport
+read -p "Enter Server Query port: " qport
 while true; do
   if ! [[ "$qport" =~ ^[0-9]+$ ]] || [[ "$qport" -lt "1" ]] || [[ "$qport" -gt "65535" ]]; then
     echo "Server Query port invalid."
