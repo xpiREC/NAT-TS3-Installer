@@ -1,6 +1,5 @@
 #!/bin/bash
 # Easy TeamSpeak 3 installer for Debian based OS
-# Tested on Debian 7/8 and Ubuntu 14.04 LTS
 
 # Check for root account
 if [[ "$EUID" -ne 0 ]]; then
@@ -24,12 +23,10 @@ pubip=$( wget -qO- http://ipinfo.io/ip )
 echo "Your private internal IP is: $pvtip"
 read -p "Enter Voice Server port [9987]: " vport
 while true; do
-  if [[ "$vport" == "" ]]; then
-    vport="9987"
-    break
-  elif ! [[ "$vport" =~ ^[0-9]+$ ]] || [[ "$vport" -lt "1" ]] || [[ "$vport" -gt "65535" ]]; then
+  if ! [[ "$vport" =~ ^[0-9]+$ ]] || [[ "$vport" -lt "1" ]] || [[ "$vport" -gt "65535" ]]; then
     echo "Voice Server port invalid."
-    read -p "Re-enter Voice Server port [9987]: " vport
+    echo "Available ports for your server can be found in the Network tab in dash."
+    read -p "Re-enter Voice Server port: " vport
   else
     break
   fi
@@ -37,12 +34,10 @@ done
 
 read -p "Enter File Transfer port [30033]: " fport
 while true; do
-  if [[ "$fport" == "" ]]; then
-    fport="30033"
-    break
-  elif ! [[ "$fport" =~ ^[0-9]+$ ]] || [[ "$fport" -lt "1" ]] || [[ "$fport" -gt "65535" ]]; then
+  if ! [[ "$fport" =~ ^[0-9]+$ ]] || [[ "$fport" -lt "1" ]] || [[ "$fport" -gt "65535" ]]; then
     echo "File Transfer port invalid."
-    read -p "Re-enter File Transfer port [30033]: " fport
+    echo "Available ports for your server can be found in the Network tab in dash."
+    read -p "Re-enter File Transfer port: " fport
   else
     break
   fi
@@ -50,12 +45,10 @@ done
 
 read -p "Enter Server Query port [10011]: " qport
 while true; do
-  if [[ "$qport" == "" ]]; then
-    qport="10011"
-    break
-  elif ! [[ "$qport" =~ ^[0-9]+$ ]] || [[ "$qport" -lt "1" ]] || [[ "$qport" -gt "65535" ]]; then
+  if ! [[ "$qport" =~ ^[0-9]+$ ]] || [[ "$qport" -lt "1" ]] || [[ "$qport" -gt "65535" ]]; then
     echo "Server Query port invalid."
-    read -p "Re-enter Server Query port [10011]: " qport
+    echo "Available ports for your server can be found in the Network tab in dash."
+    read -p "Re-enter Server Query port: " qport
   else
     break
   fi
@@ -102,9 +95,9 @@ adduser --disabled-login --gecos "ts3server" ts3
 echo "------------------------------------------------------"
 echo "Extracting TeamSpeak 3 Server Files, please wait..."
 echo "------------------------------------------------------"
-tar -xjf /opt/ts3/teamspeak3-server_linux*.tar.bz2 --strip 1 -C /opt/ts3/
-rm -f /opt/ts3/teamspeak3-server_linux*.tar.bz2
-chown -R ts3:ts3 /opt/ts3/
+tar -xjf /opt/ts3/teamspeak3-server_linux*.tar.bz2 --strip 1 -C /home/ts3/
+rm -f /home/ts3/teamspeak3-server_linux*.tar.bz2
+chown -R ts3:ts3 /home/ts3/
 
 # Create autostart script
 cat > /etc/init.d/teamspeak3 <<"EOF"
@@ -125,7 +118,7 @@ PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 DESC="TeamSpeak 3 Server"
 NAME=ts3
 USER=ts3
-DIR=/opt/ts3/
+DIR=/home/ts3/
 DAEMON=$DIR/ts3server_startscript.sh
 SCRIPTNAME=/etc/init.d/$NAME
 
@@ -137,7 +130,7 @@ EOF
 chmod 755 /etc/init.d/teamspeak3
 
 # Assign right ports and password to TS3 server
-sed -i "s/{2}/{4} default_voice_port=$vport query_port=$qport filetransfer_port=$fport filetransfer_ip=0.0.0.0 serveradmin_password=$apass/" /opt/ts3/ts3server_startscript.sh
+sed -i "s/{2}/{4} default_voice_port=$vport query_port=$qport filetransfer_port=$fport filetransfer_ip=0.0.0.0 serveradmin_password=$apass/" /home/ts3/ts3server_startscript.sh
 
 # Set TS3 server to auto start on system boot
 update-rc.d teamspeak3 defaults
