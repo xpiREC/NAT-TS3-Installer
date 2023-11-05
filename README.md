@@ -4,7 +4,7 @@ This installer will automatically install TeamSpeak 3 onto your NAT VPS, and aut
 ### How do I install?
 To install TeamSpeak 3 automatically, run this command and follow the prompt.
 
-``wget http://git.io/nat_ts3 --no-check-certificate -O /tmp/nat_ts3.sh && bash /tmp/nat_ts3.sh``
+``wget https://raw.githubusercontent.com/xpiREC/NAT-TS3-Installer/master/installer.sh --no-check-certificate -O /tmp/nat_ts3.sh && bash /tmp/nat_ts3.sh``
 
 ### Requirements
 This script will only work on OpenVZ container based VPS due to the fact it only checks for venet ethernet adapter. You can modify the code of this script before you run it if you want to install on a KVM/Xen VPS.
@@ -17,30 +17,4 @@ You can also set up SVR records with your dns provider so you can use your hostn
 
 ### Does my server have a license?
 No. Only the barebone server will be installed, no license will be included. You can, however, use the server as is for personal usage, up to 32 concurrent clients.<br />
-If you need to upload your own license, you can upload your "licensekey.dat" to ```/opt/ts3/``` and enter command ```/etc/init.d/teamspeak3 restart``` for the new license key to take effect.
-
-### Where do I get a server?
-This script will run on any vps server as long as it has root and ipv4 access. VPS with NAT'd IPv4 works just as well.<br />
-Get a cheap yearly VPS from one of these awesome providers, starting from $2 annually.
-##### <a href="https://clients.inceptionhosting.com/cart.php?gid=13&currency=3" target="_blank">Inception Hosting - as low as $2.25/year</a>
-* Dallas, US
-* Milan, IT
-* Tokyo, JP
-* Rotterdam, NL
-* Phoenix, US
-* Singapore, SG
-* Maidenhead, UK
-
-##### <a href="https://clients.gestiondbi.com/index.php?/cart/lowendspirit-nat-vps/&step=0&currency=1" target="_blank">Deepnet Solutions - as low as $2.50/year</a>
-* Montreal, CA
-* New Jersey, US
-* Hong Kong, CN
-* Johannesburg, ZA
-
-##### <a href="https://secure.ransomit.com.au/console/cart.php?a=add&pid=104" target="_blank">RansomIT - as low as $4.50/year</a>
-* Sydney, AU
-
-### More info please.
-This script uses init.d, no support for systemd, yet.<br />
-Tested on Debian 7 and Ubuntu 14.04 LTS<br />
-And don't laugh at my code.
+If you need to upload your own license, you can upload your "licensekey.dat" to ```/home/ts3/``` and enter command ```/etc/init.d/teamspeak3 restart``` for the new license key to take effect.
