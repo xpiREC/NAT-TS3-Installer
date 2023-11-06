@@ -13,8 +13,9 @@ if [ -e '/etc/redhat-release' ] ; then
   exit 1
 fi
 
-# Get the external public IP of the server
-pubip=$( wget -qO- http://ipinfo.io/ip )
+# Installation of dependent packages
+apt update -y
+apt install jq curl wget tar bzip2 -y
 
 # Gives user the internal ip for reference and ask for desired ports
 read -p "Enter Voice Server port: " vport
@@ -56,42 +57,38 @@ if [[ "$apass" == "" ]]; then
   apass=$rapass
 fi
 
+# Create non-privileged user for TS3 server, and moves home directory under /etc
+adduser --disabled-login --gecos "ts3server" ts3
+
 # Get latest TS3 server version
 echo "-------------------------------------------------------"
 echo "Detecting latest TeamSpeak 3 version, please wait..."
 echo "-------------------------------------------------------"
-wget 'http://dl.4players.de/ts/releases/?C=M;O=D' -q -O - | grep -i dir | grep -Eo '<a href=\".*\/\">.*\/<\/a>' | grep -Eo '[0-9\.?]+' | uniq | sort -V -r > TS3V
-while read ts3version; do
-  if [[ "${ts3version}" =~ ^[3-9]+\.[0-9]+\.1[2-9]+\.?[0-9]*$ ]]; then
-    wget --spider -q http://dl.4players.de/ts/releases/${ts3version}/teamspeak3-server_linux_amd64-${ts3version}.tar.bz2
-  else
-    wget --spider -q http://dl.4players.de/ts/releases/${ts3version}/teamspeak3-server_linux-amd64-${ts3version}.tar.gz
-  fi
-  if [[ $? == 0 ]]; then
-    break
-  fi
-done < TS3V
-rm -f TS3V
+ts3version=$(curl -s https://www.teamspeak.com/versions/server.json | jq -r .linux.x86_64.version)
+
+if [[ "${ts3version}" =~ ^[3-9]+\.[0-9]+\.1[2-9]+\.?[0-9]*$ ]]; then
+  wget --spider -q http://dl.4players.de/ts/releases/${ts3version}/teamspeak3-server_linux_amd64-${ts3version}.tar.bz2
+else
+  echo "Error: Incorrect teamspeak server version composition detected"
+  exit 1
+fi
+if [[ $? == 0 ]]; then
+  break
+fi
 
 # Get OS Arch and download correct packages
 if [ "$(arch)" != 'x86_64' ]; then
-    wget "http://dl.4players.de/ts/releases/"$ts3version"/teamspeak3-server_linux_x86-"$ts3version".tar.bz2" -P /opt/ts3/
+    wget "http://dl.4players.de/ts/releases/"$ts3version"/teamspeak3-server_linux_x86-"$ts3version".tar.bz2" -P /home/ts3/
 else
-    wget "http://dl.4players.de/ts/releases/"$ts3version"/teamspeak3-server_linux_amd64-"$ts3version".tar.bz2" -P /opt/ts3/
+    wget "http://dl.4players.de/ts/releases/"$ts3version"/teamspeak3-server_linux_amd64-"$ts3version".tar.bz2" -P /home/ts3/
 fi
 
-# Install required packages
-apt-get update
-apt-get install -y sudo telnet bzip2
-
-# Create non-privileged user for TS3 server, and moves home directory under /etc
-adduser --disabled-login --gecos "ts3server" ts3
 
 # Extract the contents and give correct ownership to the files and folders
 echo "------------------------------------------------------"
 echo "Extracting TeamSpeak 3 Server Files, please wait..."
 echo "------------------------------------------------------"
-tar -xjf /opt/ts3/teamspeak3-server_linux*.tar.bz2 --strip 1 -C /home/ts3/
+tar -xjf /home/ts3/teamspeak3-server_linux*.tar.bz2 --strip 1 -C /home/ts3/
 rm -f /home/ts3/teamspeak3-server_linux*.tar.bz2
 chown -R ts3:ts3 /home/ts3/
 
@@ -130,6 +127,9 @@ sed -i "s/{2}/{4} default_voice_port=$vport query_port=$qport filetransfer_port=
 
 # Set TS3 server to auto start on system boot
 update-rc.d teamspeak3 defaults
+
+# Get the external public IP of the server
+pubip=$(wget -qO- http://ipinfo.io/ip)
 
 # Give user all the information
 echo ""
