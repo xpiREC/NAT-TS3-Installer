@@ -66,7 +66,7 @@ echo "Detecting latest TeamSpeak 3 version, please wait..."
 echo "-------------------------------------------------------"
 ts3version=$(curl -s https://www.teamspeak.com/versions/server.json | jq -r .linux.x86_64.version)
 
-if [[ "${ts3version}" =~ ^[3-9]+\.[0-9]+\.1[2-9]+\.?[0-9]*$ ]]; then
+if [[ $version =~ ^[3-9]+\.[1-9]+\.[0-9]+$ ]]; then
   wget --spider -q http://dl.4players.de/ts/releases/${ts3version}/teamspeak3-server_linux_amd64-${ts3version}.tar.bz2
 else
   echo "Error: Incorrect teamspeak server version composition detected"
