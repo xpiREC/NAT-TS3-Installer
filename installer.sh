@@ -66,8 +66,8 @@ echo "Detecting latest TeamSpeak 3 version, please wait..."
 echo "-------------------------------------------------------"
 ts3version=$(curl -s https://www.teamspeak.com/versions/server.json | jq -r .linux.x86_64.version)
 
-if [[ $version =~ ^[3-9]+\.[1-9]+\.[0-9]+$ ]]; then
-  wget --spider -q http://dl.4players.de/ts/releases/${ts3version}/teamspeak3-server_linux_amd64-${ts3version}.tar.bz2
+if [[ $ts3version =~ ^[3-9]+\.[1-9]+\.[0-9]+$ ]]; then
+  wget --spider -q https://files.teamspeak-services.com/releases/server/${ts3version}/teamspeak3-server_linux_amd64-${ts3version}.tar.bz2 -o /home/ts3/teamspeak3-server_linux.tar.bz2
 else
   echo "Error: Incorrect teamspeak server version composition detected"
   exit 1
@@ -76,20 +76,13 @@ if [[ $? == 0 ]]; then
   break
 fi
 
-# Get OS Arch and download correct packages
-if [ "$(arch)" != 'x86_64' ]; then
-    wget "http://dl.4players.de/ts/releases/"$ts3version"/teamspeak3-server_linux_x86-"$ts3version".tar.bz2" -P /home/ts3/
-else
-    wget "http://dl.4players.de/ts/releases/"$ts3version"/teamspeak3-server_linux_amd64-"$ts3version".tar.bz2" -P /home/ts3/
-fi
-
 
 # Extract the contents and give correct ownership to the files and folders
 echo "------------------------------------------------------"
 echo "Extracting TeamSpeak 3 Server Files, please wait..."
 echo "------------------------------------------------------"
-tar -xjf /home/ts3/teamspeak3-server_linux*.tar.bz2 --strip 1 -C /home/ts3/
-rm -f /home/ts3/teamspeak3-server_linux*.tar.bz2
+tar -xjf /home/ts3/teamspeak3-server_linux.tar.bz2 --strip 1 -C /home/ts3/
+rm -f /home/ts3/teamspeak3-server_linux.tar.bz2
 chown -R ts3:ts3 /home/ts3/
 
 # Create autostart script
@@ -134,7 +127,6 @@ pubip=$(wget -qO- http://ipinfo.io/ip)
 # Give user all the information
 echo ""
 echo ""
-clear
 echo "TeamSpeak 3 has been successfully installed!"
 echo "Voice server is available at $pubip:$vport"
 echo "The file transfer port is: $fport"
